@@ -18,6 +18,7 @@ public class Characters : MonoBehaviour {
     private Vector2 finalTouchPosition;
     private Vector2 tempPosition;
     public float swipeAngel = 0f;
+    public float swipeResist = 1f;
 
 	// Use this for initialization
 	void Start () {
@@ -45,27 +46,37 @@ public class Characters : MonoBehaviour {
         {
             //Moves towards the target.
             tempPosition = new Vector2(targetX, transform.position.y);
-            transform.position = Vector2.Lerp(transform.position, tempPosition, .4f);
+            transform.position = Vector2.Lerp(transform.position, tempPosition, .6f);
+            if(board.allCharacters[column,row] != this.gameObject)
+            {
+                board.allCharacters[column, row] = this.gameObject;
+            }
+
         } else
         {
             // Directly set the position
             tempPosition = new Vector2(targetX, transform.position.y);
             transform.position = tempPosition;
-            board.allCharacters[column, row] = this.gameObject;
+            
         }
 
         if (Mathf.Abs(targetY - transform.position.y) > .1)
         {
             //Moves towards the target.
             tempPosition = new Vector2(transform.position.x ,targetY);
-            transform.position = Vector2.Lerp(transform.position, tempPosition, .4f);
+            transform.position = Vector2.Lerp(transform.position, tempPosition, .6f);
+            if (board.allCharacters[column, row] != this.gameObject)
+            {
+                board.allCharacters[column, row] = this.gameObject;
+            }
+
         }
         else
         {
             // Directly set the position
             tempPosition = new Vector2(transform.position.x, targetY);
             transform.position = tempPosition;
-            board.allCharacters[column, row] = this.gameObject;
+            
         }
     }
 
@@ -81,8 +92,14 @@ public class Characters : MonoBehaviour {
                 row = previousRow;
                 column = previousColumn;
             }
+            else
+            {
+                board.DestroyMatches();
+                Debug.Log("Destroyed");
+            }
             otherChararcter = null;
         }
+        
     }
 
     private void OnMouseDown()
@@ -99,9 +116,13 @@ public class Characters : MonoBehaviour {
 
     void CalculateAngle()
     {
-        swipeAngel = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x)* 180/Mathf.PI;
-        Debug.Log(swipeAngel);
-        MovePieces();
+        if(Mathf.Abs(finalTouchPosition.y - firstTouchPosition.y) > swipeResist || Mathf.Abs(finalTouchPosition.x - firstTouchPosition.x) > swipeResist)
+        {
+            swipeAngel = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * 180 / Mathf.PI;
+            Debug.Log(swipeAngel);
+            MovePieces();
+        }
+        
     }
 
     void MovePieces()
